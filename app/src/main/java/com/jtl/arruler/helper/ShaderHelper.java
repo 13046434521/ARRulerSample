@@ -1,4 +1,4 @@
-package com.jtl.surface.helper;
+package com.jtl.arruler.helper;
 
 import android.content.Context;
 import android.opengl.GLES20;
@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 
 
 public class ShaderHelper {
+    private static final String TAG =ShaderHelper.class.getSimpleName();
     /**
      * Converts a raw text file, saved as a resource, into an OpenGL ES shader.
      *
@@ -41,7 +42,36 @@ public class ShaderHelper {
         GLES20.glReleaseShaderCompiler();
         return shader;
     }
+    /**
+     * Converts a raw text file, saved as a resource, into an OpenGL ES shader.
+     *
+     * @param type     The type of shader we will be creating.
+     * @param filename The filename of the asset file about to be turned into a shader.
+     * @return The shader object handler.
+     */
+    public static int loadGLShader( Context context, int type, String filename) {
+        String code = readRawTextFileFromAssets(context, filename);
+        int shader = GLES20.glCreateShader(type);
+        GLES20.glShaderSource(shader, code);
+        GLES20.glCompileShader(shader);
 
+        // Get the compilation status.
+        final int[] compileStatus = new int[1];
+        GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compileStatus, 0);
+
+        // If the compilation failed, delete the shader.
+        if (compileStatus[0] == 0) {
+            Log.e(TAG, "Error compiling shader: " + GLES20.glGetShaderInfoLog(shader));
+            GLES20.glDeleteShader(shader);
+            shader = 0;
+        }
+
+        if (shader == 0) {
+            throw new RuntimeException("Error creating shader.");
+        }
+        GLES20.glReleaseShaderCompiler();
+        return shader;
+    }
     /**
      * Checks if we've had an error inside of OpenGL ES, and if so what that error is.
      *
@@ -66,7 +96,7 @@ public class ShaderHelper {
         // Drain the queue of all errors.
         int error;
         while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-            Log.e("", label + ": glError " + error);
+            Log.e(TAG, label + ": glError " + error);
             lastError = error;
         }
         if (lastError != GLES20.GL_NO_ERROR) {

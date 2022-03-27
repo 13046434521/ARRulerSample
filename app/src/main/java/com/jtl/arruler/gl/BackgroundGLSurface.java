@@ -18,24 +18,26 @@ import javax.microedition.khronos.opengles.GL10;
  * @date：2022/3/26 11:47
  * @detail：
  */
-class YuvGLSurface extends BaseGLSurface implements GLSurfaceView.Renderer {
-    private YuvRenderer yuvRenderer;
+public class BackgroundGLSurface extends BaseGLSurface implements GLSurfaceView.Renderer {
+    private BackgroundRenderer mBackgroundRenderer;
+    private Context context;
     Session mSession;
-    public YuvGLSurface(Context context) {
+    public BackgroundGLSurface(Context context) {
         this(context,null);
     }
 
-    public YuvGLSurface(Context context, AttributeSet attrs) {
+    public BackgroundGLSurface(Context context, AttributeSet attrs) {
         super(context, attrs);
-
-        yuvRenderer = new YuvRenderer();
-        yuvRenderer.createOnGLThread(context);
-        pushRender(yuvRenderer);
+        this.context = context;
     }
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         super.onSurfaceCreated(gl, config);
+
+        mBackgroundRenderer = new BackgroundRenderer();
+        mBackgroundRenderer.createOnGLThread(context);
+        pushRender(mBackgroundRenderer);
     }
 
     @Override
